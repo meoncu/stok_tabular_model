@@ -1,0 +1,269 @@
+let
+    Source = Oracle.Database("rapordb", [HierarchicalNavigation=true, CommandTimeout=#duration(0, 2, 0, 0), Query="
+ SELECT  NULL as tanzim_tarihi, EK_HIZMET_BURO_ID,
+FATURA_BIRIM_FIYAT,birim_cikan_miktar,
+TO_DATE(FIS_TARIHI, 'YYYY-MM-DD')FIS_TARIHI,      case
+    when fis_tipi='ACILIS' then 1    when fis_tipi='ACILIS_DUZELTME' then 2    when fis_tipi='AKARYAKIT_FAZLALIK_GIRIS_FIS' then 3
+    when fis_tipi='ALIS_FIYAT_ARTTIRIM' then 4    when fis_tipi='ALIS_FIYAT_INDIRIM' then 5    when fis_tipi='ALISTAN_IADE_CIKIS' then 6
+    when fis_tipi='BILESENLI_URUN_FIS' then 7    when fis_tipi='BOLGE_SATIS' then 8    when fis_tipi='DEPO_AKTARIM_FIS' then 9    when fis_tipi='ELUS_CIKIS_FIS' then 10
+    when fis_tipi='ELUS_GIRIS_FIS' then 11    when fis_tipi='ELUS_MASRAF_GIRIS_FIS' then 12    when fis_tipi='EXT_AYGIT_FIS_CIKIS' then 13    when fis_tipi='FATURA' then 14
+    when fis_tipi='FATURA_FARK_FIS' then 15    when fis_tipi='FATURA_PRIM_FARK' then 16    when fis_tipi='FATURALI_MASRAF_FIS' then 17    when fis_tipi='FATURALI_NAKLIYE_HAMALIYE' then 18
+    when fis_tipi='FAZLALIK' then 19    when fis_tipi='FIFA_IPTAL_FIS' then 20    when fis_tipi='FINANSMAN_MALIYET_GIRIS_FIS' then 21    when fis_tipi='FIRE_CIKIS' then 22
+    when fis_tipi='GIDER_MAK' then 23    when fis_tipi='IPTAL' then 24    when fis_tipi='KONSINYE_CIKIS' then 25    when fis_tipi='KONSINYE_GIRIS' then 26
+    when fis_tipi='KONSINYE_IADE' then 27    when fis_tipi='KOOP_SATIS' then 28    when fis_tipi='MASRAFA_CIKIS' then 29    when fis_tipi='MIKTARSIZ_TUTAR_DUZELTME' then 30
+    when fis_tipi='MUSTAHSIL_FIYAT_ARTIRIM' then 31    when fis_tipi='MUSTAHSIL_MAKBUZU' then 32    when fis_tipi='MUSTAHSIL_PRIM_FARK' then 33
+    when fis_tipi='NOKSANLIK' then 34    when fis_tipi='SATIS_FIYAT_ARTTIRIM' then 35    when fis_tipi='SATISTAN_IADE_FISI' then 36    when fis_tipi='SIGORTA' then 37
+    when fis_tipi='STOK_AKTARMA_FIS' then 38    when fis_tipi='STOK_DUZELTME_FIS' then 39    when fis_tipi='STOK_ICI_AKTARIM' then 40    when fis_tipi='STOK_KOOP_BIRLESTIRME_FIS' then 41
+    when fis_tipi='STOK_YILBASI_FIS' then 42    when fis_tipi='SULAMA_SISTEM_FIS' then 43    when fis_tipi='URETIM' then 44    when fis_tipi='K_SATIS' then 45
+    when fis_tipi='B_SATIS' then 46    when fis_tipi='MUST_FIYAT_ARTIRIM' then 47    when fis_tipi='MUST_PRIM_FARK' then 48    when fis_tipi='FI_CIK' then 49
+    when fis_tipi='FINANSMAN_MALIYET' then 50         when fis_tipi='MAS_CIK' then 51    when fis_tipi='MUST_MAK' then 52    when fis_tipi='SATIS_ART' then 53    when fis_tipi='ELUS_MASRAF_FIS' then 54
+    when fis_tipi='AYK_FAZLALIK_FIS' then 55   when fis_tipi='ALIS_IND' then 56    when fis_tipi='ALIS_ART' then 57    when fis_tipi='AIF_CIK' then 58
+   else 0   end as FIS_TIPI_ID,   nvl(sum(gelir),0) GELIR,   nvl(SUM(giren_miktar),0)giren_miktar,  nvl(SUM(cikan_miktar),0)cikan_miktar,  
+CASE WHEN tip='G' THEN 1 WHEN tip='C' THEN 2 ELSE 0 END HAREKET_TIP_ID,  
+ nvl(SUM(birim_giren_miktar/tutar_bolen),0)- nvl(SUM(birim_cikan_miktar/tutar_bolen),0) AS  KALAN_MIKTAR,
+   nvl(SUM(giren_tutar),0) - nvl(sum(cikan_tutar),0)  AS KALAN_TUTAR ,
+KURUM_ID, MUHATAP_ID,MUHATAP_KURUM_TIP,
+CASE WHEN muhatap_tip='I' then 1   when  muhatap_tip='D' then  2  when muhatap_tip='T' then 3 END MUHATAP_TIP_ID,  
+   CASE WHEN teskilat_tipi='TI' THEN 5  ELSE    case
+    when odeme_sekli='N' then 1  when odeme_sekli='P' then 2 when odeme_sekli='KC' then 3 when odeme_sekli='KT' then 4
+    when odeme_sekli='T' then 5 when odeme_sekli='K' then 6 when odeme_sekli='VA' then 7 when odeme_sekli='V' then 8
+    when odeme_sekli='VE' then 9 when odeme_sekli='BA' then 10 when odeme_sekli='MO' then 11 when odeme_sekli='HD' then 12
+    when odeme_sekli='AT' then 13 when odeme_sekli='KK' then 3 when odeme_sekli='TK' then 15 when odeme_sekli='SS' then 16
+    when odeme_sekli='KA' then 17 when odeme_sekli='D' then 18 when odeme_sekli='I' then 19 when odeme_sekli='B' then 20 when odeme_sekli='UV' then 21 when odeme_sekli='NK' then 22 else 0
+   END    END    ODEME_SEKLI_ID,   ORTAK_ID,   STOK_HESAP_NO,   STOK_ID ,  TEDARIK_FIYAT,
+  nvl(SUM(tedarik_miktari/tutar_bolen),0) TEDARIK_MIKTARI,   
+  nvl(SUM(tedarik_tutari),0) TEDARIK_TUTARI,
+  nvl(SUM(tesdisi_satis_miktari/tutar_bolen),0) TESDISI_SATIS_MIKTARI,  
+  nvl(sum(tesdisi_satis_tutari),0) TESDISI_SATIS_TUTARI,
+  nvl(SUM(tesici_satis_miktari/tutar_bolen),0) TESICI_SATIS_MIKTARI,
+  nvl(sum(tesici_satis_tutari),0) TESICI_SATIS_TUTARI,
+  TESKILAT_TIPI_ID,  VALOR_TARIHI,
+  nvl(SUM(yilbasi_devir_miktari/tutar_bolen),0) YILBASI_DEVIR_MIKTARI, 
+  nvl(SUM(yilbasi_devir_tutari),0) YILBASI_DEVIR_TUTARI ,
+  nvl(SUM(tutar),0) - nvl(SUM(CIKAN_TUTAR_GELIR),0) GELIR_MAL_KDVSIZ  FROM
+( SELECT    fis_tarihi, firma,VALOR_TARIHI,FATURA_BIRIM_FIYAT,tedarik_fiyat,EK_HIZMET_BURO_ID, satis_kdv_orani,son_tuketici_satis_mi,
+  kurum_id ,  stok_id ,  yil,   ay ,   stok_hesap_no, ortak_id,tip,tutar_bolen,
+muhatap_id, fatura_muhatap_tip,fatura_muhatap_kurum, muhatap_tip, muhatap_kurum_tip,     fis_tipi, odeme_sekli,grup_kodu,
+nvl(SUM(giren_miktar*birim_cevrim_katsayi),0) birim_giren_miktar,
+nvl(SUM(cikan_miktar*birim_cevrim_katsayi),0) birim_cikan_miktar,  
+nvl(SUM(giren_miktar),0)giren_miktar,  
+nvl(SUM(cikan_miktar),0)cikan_miktar,  
+nvl(SUM(giren_tutar),0)giren_tutar,  
+nvl(SUM(cikan_tutar),0) cikan_tutar,
+nvl(SUM(Satis_Maliyeti),0) Satis_Maliyeti,
+ nvl(Sum(tutar_600),0)tutar_600,
+nvl(SUM(tutar),0) tutar,
+nvl(SUM(alacak_tutar_kdvsiz),0) alacak_tutar_kdvsiz ,
+ sum(case when FIS_TIPI ='STOK_YILBASI_FIS' then nvl(giren_miktar*birim_cevrim_katsayi,0) end)  yilbasi_devir_miktari,
+sum(case when FIS_TIPI ='STOK_YILBASI_FIS' then nvl(giren_tutar,0) end)  yilbasi_devir_tutari,
+sum(case when FIS_TIPI <>'STOK_YILBASI_FIS' then nvl(giren_miktar*birim_cevrim_katsayi,0) end)  tedarik_miktari,
+sum(case when FIS_TIPI <>'STOK_YILBASI_FIS' then nvl(giren_tutar,0) end)  tedarik_tutari,
+case when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') and  muhatap_tip='T' and muhatap_kurum_tip<>'Y'     THEN  1  /*tesici*/
+     when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') and  muhatap_tip<>'T' and muhatap_kurum_tip='Y' THEN  2  ELSE 0 /*tesdisi*/ END TES_ICI_DISI,
+nvl((case when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') and  muhatap_tip='T' and muhatap_kurum_tip<>'Y' and nvl(SUM(case when giren_tutar > 0 then 0 else tutar end),0) <> 0  then nvl(SUM(cikan_miktar*birim_cevrim_katsayi),0) END),0)  tesici_satis_miktari,
+nvl((case when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') and  muhatap_tip<>'T' and muhatap_kurum_tip='Y' and nvl(SUM(case when giren_tutar > 0 then 0 else tutar end),0) <> 0 then nvl(SUM(cikan_miktar*birim_cevrim_katsayi),0) END),0)  tesdisi_satis_miktari,
+nvl( (case when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') and  muhatap_tip='T' and muhatap_kurum_tip<>'Y'                                                                     then (case when nvl(sum(giren_tutar),0) > 0 then 0 else nvl(sum(tutar),0) end) END ),0)  tesici_satis_tutari,
+nvl((case when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') and  muhatap_tip<>'T' and muhatap_kurum_tip='Y'                                                                      then (case when nvl(sum(giren_tutar),0) > 0 then 0 else nvl(sum(tutar),0) end) END ),0) tesdisi_satis_tutari,
+nvl((case when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') and  muhatap_tip<>'T' and muhatap_kurum_tip='Y' and (case when nvl(SUM(giren_tutar),0) > 0 then 0 else nvl(sum(tutar),0)  end) <>0  then nvl(sum(cikan_tutar),0) END),0) tesdisi_cikan_tutar,
+NVL((case when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') then (case when nvl(SUM(giren_tutar),0) > 0 then 0 else nvl(sum(tutar),0) end) END),0) 
+-
+NVL((case when fis_tipi in ('K_SATIS','B_SATIS','NOKSANLIK','ELUS_CIKIS_FIS') then nvl(sum(cikan_tutar),0) END),0) + nvl(SUM(ek_gelir),0)   gelir,
+  (case when son_tuketici_satis_mi=0
+AND(substr(grup_kodu,1,3)  in('060','070','080')  or   substr(grup_kodu,1,9) in('100.01.03','100.02.03')) then (nvl(SUM(Satis_Maliyeti),0)- (nvl(SUM(Satis_Maliyeti),0)*satis_kdv_orani))
+else
+(case when nvl(SUM(Satis_Maliyeti),0)>nvl(Sum(tutar_600),0) then
+(case when nvl(SUM(Satis_Maliyeti),0) =nvl(SUM(alacak_tutar_kdvsiz),0)  then nvl(SUM(Satis_Maliyeti),0)
+When  nvl(SUM(Satis_Maliyeti),0) > nvl(SUM(alacak_tutar_kdvsiz),0)  then nvl(SUM(Satis_Maliyeti),0)
+End ) else nvl(SUM(alacak_tutar_kdvsiz),0)  end)  end) CIKAN_TUTAR_GELIR , 
+teskilat_tipi,teskilat_tipi_id,rapor_birim_adi
+  FROM                 ( 
+select distinct  stk.fis_tarihi, stk.stok_id, STK.VALOR_TARIHI ,stk.FATURA_BIRIM_FIYAT,stk.birinci_teklif ,stk.muhatap, stk.firma, muhatap_id,ortak_id,stk.tip,satis_kdv_orani,son_tuketici_satis_mi,
+  stk.yil   , stk.fis_tipi,stk.kurum_id, stk.birim_cevrim_katsayi, stk.EK_HIZMET_BURO_ID,grup_kodu,
+  stk.odeme_sekli,  stk.stok_hesap_no,stk.fatura_muhatap_tip,stk.fatura_muhatap_kurum,ay,   
+  nvl(Sum (case when stk.tip='G' and (stk.fis_tipi  <> 'ALIS_ART'and stk.fis_tipi  <>'SIG_FIS'and stk.fis_tipi  <>'FNH')  then stk.miktar   else 0 end ),0)giren_miktar,
+  nvl(Sum(case when stk.tip='C' and stk.fis_tipi <>'SATIS_ART'  /*and stk.fis_tipi <>'ALIS_IND'*/   and stk.fis_tipi<>'TUTAR_DUZELTME'     then stk.miktar else 0 end ),0)cikan_miktar,  
+  /*nvl(Sum( case when stk.tip='G' and stk.fis_tipi<>'FNH'then  (nvl(stk.tutar,0) + nvl(stk.nakliye_kdvsiz_tutar,0)+nvl(stk.hamaliye_kdvsiz_tutar ,0))  
+  else  (case when stk.tip='G' and stk.fis_tipi='FNH'then   (nvl(stk.nakliye_kdvsiz_tutar,0)+nvl(stk.hamaliye_kdvsiz_tutar ,0)) else 0 end )
+   end),0) giren_tutar,*/
+   Sum(case
+when stk.tip='G' and stk.fis_tipi<>'FNH' and  stk.fis_tipi <> 'MUST_FIYAT_ARTIRIM' then      (nvl(stk.tutar,0) + nvl(stk.nakliye_kdvsiz_tutar,0)+nvl(stk.hamaliye_kdvsiz_tutar ,0))
+when stk.tip='G' and stk.fis_tipi<>'FNH' and  stk.fis_tipi = 'MUST_FIYAT_ARTIRIM' then      (nvl(stk.MUSTAHSIL_FARK_MIKTAR,0)* nvl(stk.URETICI_NET_BIRIM_FIYAT,0)) else
+(case when stk.tip='G' and stk.fis_tipi='FNH'then (nvl(stk.nakliye_kdvsiz_tutar,0)+nvl(stk.hamaliye_kdvsiz_tutar ,0)) else 0 end )
+end) giren_tutar,NVL(SUM (
+  CASE
+    WHEN stk.tip      ='C'   AND stk.fis_tipi IN ('ELUS_CIKIS_FIS','K_SATIS','B_SATIS','NOKSANLIK')    THEN stk.alacak_tutar else 0 END),0) Satis_Maliyeti,
+  ---------------------------15.01.2017 de 413615 nolu talep ile düzeltilmi?tir. iade maliyeti yeniden hesaplanmy?tyr.
+  NVL(SUM (
+  CASE
+    WHEN stk.tip      ='C'
+    AND stk.fis_tipi IN ('ELUS_CIKIS_FIS','ALIS_IND','AIF_CIK','EXT_AYGIT_FIS_CIKIS','FI_CIK','K_SATIS','B_SATIS','FIFA_IPTAL_FIS','STOK_DUZELTME_FIS','STOK_AKTARMA_FIS','NOKSANLIK','SULAMA_SISTEM_FIS')
+    THEN stk.alacak_tutar
+    WHEN stk.tip='C'
+    THEN stk.tutar
+  END),0) cikan_tutar,
+    sum(round(alacak_tutar/(1+satis_kdv_orani),2)) alacak_tutar_kdvsiz,
+    nvl(sum( (case when stk.fis_tipi ='K_SATIS'  then
+(case when  (stk.son_tuketici_satis_mi = 1
+and (substr(stk.grup_kodu,1,3) in ('070','080','110') or (substr(stk.grup_kodu,1,3)='060' and stk.grup_kodu not like '060.01.03%') or substr(stk.grup_kodu,1,9) in ('100.01.03','100.02.03'))
+) or (stk.son_tuketici_satis_mi = 0 and  stk.grup_kodu like '110.01%')
+then stk.r_satis else stk.tutar end)
+      when stk.fis_tipi  in ('B_SATIS','ELUS_CIKIS_FIS','STOK_DUZELTME_FIS') then stk.tutar
+      when stk.fis_tipi  = 'NOKSANLIK' then stk.r_satis  end) ),0) tutar,
+      nvl(Sum(r_satis),0)tutar_600,
+sum(case when stk.fis_tipi  = 'ALIS_IND' then (stk.tutar-stk.alacak_tutar)
+     when fis_tipi  = 'AIF_CIK' and (stk.tutar-stk.alacak_tutar) > 0 then stk.tutar-stk.alacak_tutar end) ek_gelir,
+    (case when muhatap_tip='T' then(case when nvl(muhatap_kurum_tip,'Y')<>'Y' then muhatap_tip else 'T' end)
+      when muhatap_tip='D' then(case when nvl(muhatap_kurum_tip,'Y')<>'Y' then 'T' else (case when nvl(muhatap_kurum_tip,'Y')='Y' then muhatap_tip else 'D' end) end)
+      when muhatap_tip='I' then(case when nvl(muhatap_kurum_tip,'Y')='Y' then muhatap_tip else 'I' end)
+      when muhatap_tip='Y' then(case when nvl(muhatap_kurum_tip,'Y')='Y' then muhatap_tip else 'T' end)
+      else muhatap_tip end) muhatap_tip,     
+      (case when nvl(muhatap_kurum_tip,'Y')='Y' then(case when muhatap_tip<>'T' then nvl(muhatap_kurum_tip,'Y') else 'MBK' end)
+      when nvl(muhatap_kurum_tip,'Y')<>'Y' then(case when muhatap_tip='T' then nvl(muhatap_kurum_tip,'Y') else 'MBK' end)
+      else nvl(muhatap_kurum_tip,'Y') end) muhatap_kurum_tip,
+    case  when 
+      stk.ana_grup_kodu='110' OR stk.ana_grup_kodu='150' OR   stk.ana_grup_kodu='060' OR   stk.ana_grup_kodu='020' OR    stk.grup_kodu LIKE '120.01%' OR
+      stk.grup_kodu LIKE '120.05%' OR     stk.grup_kodu LIKE '040.05.01%' OR       stk.grup_kodu LIKE '140.01%' OR      (stk.ozel_grup_kodu = '010' and   stk.grup_kodu  NOT LIKE  '010.10%' ) OR 
+      (stk.ozel_grup_kodu = '040' AND  (stk.grup_kodu LIKE  '040.01%' OR stk.grup_kodu LIKE '040.02%' OR stk.grup_kodu LIKE '040.03%' OR stk.grup_kodu LIKE '040.04%' OR stk.grup_kodu LIKE '040.07%' ) )
+  OR        stk.grup_kodu LIKE '050.11.03.01%' OR        stk.grup_kodu LIKE '050.11.03.02%' OR        stk.grup_kodu LIKE '050.11.03.04%' OR        stk.grup_kodu LIKE '050.11.03.05%'
+    then 1000      else 1
+  end AS tutar_bolen, 
+  stk.teskilat_tipi,stk.teskilat_tipi_id,stk.rapor_birim_adi,
+ (CASE 
+  WHEN stk.gün < 0 OR (stk.gün >= 0 AND stk.gün < 31) THEN    COALESCE(stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade90, stk.vade120, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 31 AND stk.gün < 61 THEN    COALESCE(stk.vade30, stk.birinci_teklif, stk.vade60, stk.vade90, stk.vade120, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 61 AND stk.gün < 91 THEN    COALESCE(stk.vade60, stk.birinci_teklif, stk.vade30, stk.vade90, stk.vade120, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 91 AND stk.gün < 121 THEN     COALESCE(stk.vade90, stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade120, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 121 AND stk.gün < 151 THEN    COALESCE(stk.vade120, stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade90, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 151 AND stk.gün < 181 THEN    COALESCE(stk.vade150, stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade90, stk.vade120, stk.vade180, 0)
+  WHEN stk.gün > 180 THEN    COALESCE(stk.vade180, stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade90, stk.vade120, stk.vade150, 0)
+  ELSE -1  END  ) tedarik_fiyat
+from
+(  SELECT sf.fis_tarihi,s.firma,sf.VALOR_TARIHI , sfh.FATURA_BIRIM_FIYAT ,sfh.EK_HIZMET_BURO_ID, kdv.oran satis_kdv_orani, 
+muhatap_frm.id muhatap_id , s.id stok_id ,  s.grup grup_id    , g.kod grup_kodu,  substr(muh.hesap_no,1,5) stok_hesap_no,
+ muhatap_frm.ortak_id , sf.muhatap , sf.fis_tipi ,sfh.tip,  sfh.nakliye_kdvsiz_tutar,  sfh.hamaliye_kdvsiz_tutar,sfh.AY,
+(sfh.r_satis-nvl(sfh.Kar_Payi_Tutar,0) ) r_satis ,  (sfh.tutar-nvl(sfh.Kar_Payi_Tutar,0)) tutar,
+ sfh.alacak_tutar,sfh.miktar,sf.son_tuketici_satis_mi,sf.muhasebe_fis_id,  ks.kurum_id, s.birim_cevrim_katsayi  ,    sf.yil ,
+(CASE WHEN sfh.tip='C' then
+(case when sf.fis_tipi='NOKSANLIK' then (case when s.id=378/*stok_kodu=312 motorin*/ and kurum.kurum_tip='B' then nvl(sf.muhatap_tip,'T') else nvl(sf.muhatap_tip,'D') end)
+when sf.fis_tipi in ('AIF_CIK','ALIS_IND') then nvl(sf.muhatap_tip,'D')
+when sf.fis_tipi='ELUS_CIKIS_FIS' then (case when nvl(muhatap_kurum.kurum_tip,'Y')<>'Y' then 'T'
+else (case when muhatap_tfrm.ttk_kurum_id is null then (case when muhatap_frm.ortak_id is null then 'D' else 'I' end) end) end)
+when sf.fis_tipi in ('K_SATIS','B_SATIS') then sf.muhatap_tip
+else 'T'
+end) END) muhatap_tip ,
+---satış için ('ELUS_CIKIS_FIS,'K_SATIS','B_SATIS','NOKSANLIK') , ek gelir fişleri ('AIF_CIK','ALIS_IND'), diğer çıkış fişleri
+(CASE WHEN SFh.tip='C' then
+(case when sf.fis_tipi='NOKSANLIK' then (case when s.stok_kodu='312' and kurum.kurum_tip='B' then nvl(muhatap_kurum.kurum_tip,'B') else nvl(muhatap_kurum.kurum_tip,'Y') end)
+when sf.fis_tipi in ('AIF_CIK','ALIS_IND','ELUS_CIKIS_FIS') then nvl(muhatap_kurum.kurum_tip,'Y')
+when sf.fis_tipi in ('K_SATIS','B_SATIS') then nvl(muhatap_kurum.kurum_tip,'Y')
+else 'MBK'
+end) END) muhatap_kurum_tip, --motorin için kesilen noksanlyk te?kilat içi gelirdir. bu fi?in muhatap kurumu olmady?y için bölge le doldurulur.
+  (case
+   when kurum.kurum_tip='K' then
+    (case when sf.fis_tipi='ELUS_CIKIS_FIS' then 'BA'
+          when sf.fis_tipi in ('AIF_CIK','ALIS_IND','NOKSANLIK') then 'N'
+          when sf.odeme_sekli='KK' and sf.kredi_karti_taksit=1 then 'KC'
+          when sf.odeme_sekli='KK' and sf.kredi_karti_taksit>1 then 'KT'
+      else sf.odeme_sekli END )
+   when kurum.kurum_tip in ('M','B') then
+    (case when sf.fis_tipi='ELUS_CIKIS_FIS' then 'BA'
+          when sf.fis_tipi in ('AIF_CIK','ALIS_IND','NOKSANLIK') then 'N'
+          when sf.bolge_fiyat_tip='KK' and sf.kredi_karti_taksit=1 then 'KC'
+          when sf.bolge_fiyat_tip='KK' and sf.kredi_karti_taksit>1 then 'KT'
+      else decode(sf.bolge_fiyat_tip ,'P' , 'N' ,'B' , 'BA' ,'V' , 'VA' , sf.bolge_fiyat_tip)  end  ) end ) odeme_sekli,
+   (case when sfh.tip='G' then (case when muhatap_tfrm.ttk_kurum_id is null then 'TD' else 'TI' end) end) fatura_muhatap_tip,
+ (case when sfh.tip='G' then (case when muhatap_tfrm.ttk_kurum_id is null then 'Y' else muhatap_kurum.kurum_tip end) end) fatura_muhatap_kurum,      
+sfh.MUSTAHSIL_FARK_MIKTAR , sfh.URETICI_NET_BIRIM_FIYAT ,  
+(case when sf.fis_tipi in ('ELUS_GIRIS_FIS','ELUS_CIKIS_FIS','FATURA','MUST_MAK','K_SATIS','B_SATIS','NOKSANLIK') then
+(case when muhatap_frm.ortak_id is null then 'ORTAK DIŞI' else 'ORTAK İÇİ' end) end) ortak_durumu,
+ust.KOD AS ust_grup_kodu, ana.KOD AS ana_grup_kodu,   
+(case when  
+  (case when uretici_frm.tip='T' then uretici_tfrm.unvan else uretici_gfrm.ad||' '||uretici_gfrm.soyad end) in 
+    ('HAZIR ÜRÜN SATAN ÜRETİCİLER','SÖZLEŞMELİ ÜRETİM YAPAN ÜRETİCİLER','SÖZLEŞMELİ TOHUMLUK ÜRETEN ÜRETİCİLER', 'SÖZLEŞMELİ FİDAN ÜRETEN ÜRETİCİLER'   ) then '199'
+   else ana.KOD end) AS ozel_grup_kodu,
+   CASE WHEN sf.MUHATAP_TIP='D' THEN 1 WHEN sf.MUHATAP_TIP='I' THEN 2 END AS ortak_tipi_id,
+  CASE WHEN sf.MUHATAP_TIP='D' THEN 'OrtakDisi' WHEN sf.MUHATAP_TIP='I' THEN 'OrtakIci' END AS ortak_tipi,
+  CASE WHEN muhatap_frm.tip='T' THEN case when muhatap_tfrm.ttk_kurum_id is null then 'TD' else 'TI' END 
+     WHEN muhatap_frm.tip='G' THEN 'TD'   ELSE 'Diğer'  END
+   AS teskilat_tipi, CASE WHEN muhatap_frm.tip='T' THEN case when muhatap_tfrm.ttk_kurum_id is null then 3 else 4 END 
+     WHEN muhatap_frm.tip='G' THEN 3  ELSE 0  END
+   AS teskilat_iscdis_tipi_id,
+        CASE WHEN muhatap_frm.tip='T' THEN 
+        CASE WHEN muhatap_tfrm.ttk_kurum_id is null then     
+        CASE WHEN muhatap_tfrm.kamu=1  AND muhatap_tfrm.vergi_no NOT IN ('4120004477','4740066258','8240303517','8450627145', '8230039430','8240301067','8450568639','8240300724','8240043994','1440400863','4740022474','8240925323')   then   5   else 6 END
+                ELSE  
+                CASE WHEN muhatap_kurum.KURUM_TIP ='K' THEN 11
+                     WHEN muhatap_kurum.KURUM_TIP ='B' THEN 12
+                     WHEN muhatap_kurum.KURUM_TIP ='M' THEN 13   END    END
+         WHEN muhatap_frm.tip='G'  OR muhatap_frm.tip IS NULL  THEN 6   ELSE 0    END
+   AS teskilat_tipi_id  ,
+r_birim.ad rapor_birim_adi,fiyat.birinci_teklif*  (CASE WHEN fiyat.PARA_BIRIMI='TRY' THEN 1 ELSE kur.SATIS_TUTARI END)birinci_teklif, nvl(round((cast(to_date(sf.valor_tarihi,'YYYYMMDD') as date) )- cast(to_date(sf.fis_tarihi,'YYYYMMDD') as date)),0) gün,
+fiyat.vade30*(CASE WHEN fiyat.PARA_BIRIMI='TRY' THEN 1 ELSE kur.SATIS_TUTARI END) vade30,
+fiyat.vade60*(CASE WHEN fiyat.PARA_BIRIMI='TRY' THEN 1 ELSE kur.SATIS_TUTARI END) vade60,
+fiyat.vade90*(CASE WHEN fiyat.PARA_BIRIMI='TRY' THEN 1 ELSE kur.SATIS_TUTARI END) vade90,
+fiyat.vade120*(CASE WHEN fiyat.PARA_BIRIMI='TRY' THEN 1 ELSE kur.SATIS_TUTARI END) vade120,
+fiyat.vade150*(CASE WHEN fiyat.PARA_BIRIMI='TRY' THEN 1 ELSE kur.SATIS_TUTARI END) vade150,
+fiyat.vade180*(CASE WHEN fiyat.PARA_BIRIMI='TRY' THEN 1 ELSE kur.SATIS_TUTARI END) vade180  
+  from  buhara.stk_stok s
+  left join buhara.stk_kurum_stok ks on s.id=ks.stok_id
+  left join buhara.stk_stok_grup g on s.grup=g.id
+  left join buhara.stk_stok_grup ust ON g.ust_grup=ust.ID  
+  left join buhara.stk_stok_grup ana ON substr(ust.KOD,1,3)=ana.KOD 
+  left join ekoop.frm_firma_musteri uretici_frm on s.firma = uretici_frm.id  
+  left join ekoop.frm_tuzel_firma_musteri uretici_tfrm on s.firma = uretici_tfrm.id
+  left join ekoop.frm_gercek_firma_musteri uretici_gfrm on s.firma = uretici_gfrm.id  
+  left join buhara.stk_stok_fis_hareket sfh on sfh.kurum_stok_id=ks.id
+  left outer join ekoop.com_birim r_birim on s.rapor_birimi = r_birim.id
+  inner join buhara.stk_stok_fis sf on sfh.stok_fis_id=sf.id and sfh.kurum_id=sf.kurum_id
+  left join buhara.frm_firma_musteri muhatap_frm on sf.muhatap = muhatap_frm.id
+  left join buhara.frm_tuzel_firma_musteri muhatap_tfrm on muhatap_frm.id = muhatap_tfrm.id
+  left join buhara.frm_gercek_firma_musteri muhatap_gfrm on muhatap_frm.id = muhatap_gfrm.id
+  left join buhara.com_kurum muhatap_kurum on muhatap_tfrm.ttk_kurum_id = muhatap_kurum.id
+  left join buhara.com_kurum kurum on ks.kurum_id = kurum.id
+  left join buhara.muh_hesap muh on s.stok_muhasebe_hesabi=muh.id
+  left join buhara.muh_kdv_oran kdv on ks.satis_kdv_oran=kdv.id
+  left join (SELECT   t.anlasmali_firma_id,t.PARA_BIRIMI,  t.stok_id,     (t.guncelleme_tarihi) as baslangic_tarihi,
+  (LEAD(t.guncelleme_tarihi,1,'20991231') OVER(PARTITION BY t.anlasmali_firma_id, t.stok_id ORDER BY t.guncelleme_tarihi)) as bitis_tarihi,
+  nvl(t.fiyat,0) as birinci_teklif, nvl(t.vade30,0) as vade30,nvl(t.vade60,0) as vade60,nvl(t.vade90,0) as vade90,nvl(t.vade120,0) as vade120,nvl(t.vade150,0) as vade150,nvl(t.vade180,0) as vade180
+FROM  (  SELECT f.anlasmali_firma_id, f.PARA_BIRIMI , f.stok_id, f.fiyat,f.vade30,f.vade60,f.vade90,f.vade120,f.vade150,f.vade180,      substr(b.SOZLESME_BAS_TARIHI,1,8) as guncelleme_tarihi,
+      DENSE_RANK() OVER(PARTITION BY f.anlasmali_firma_id, f.stok_id, substr(b.SOZLESME_BAS_TARIHI,1,8) ORDER BY b.SOZLESME_BAS_TARIHI) as sira
+    FROM ekoop.tdm_anlasmali_firma_urun_fiyat f  , ekoop.TDM_ANLASMALI_FIRMA_BELGE B WHERE  B.SOZLESME_DURUM<>'AN' AND  F.SOZLESME_ID  = B.ID 
+        ) t WHERE t.sira=1 AND stok_id is not null AND anlasmali_firma_id is not NULL  AND 
+    nvl(t.fiyat,0) + nvl(t.vade30,0) + nvl(t.vade60,0) + nvl(t.vade90,0) + nvl(t.vade120,0) + nvl(t.vade150,0) +nvl(t.vade180,0)<>0
+)fiyat on fiyat.stok_id=s.id and sf.fis_tarihi>=fiyat.baslangic_tarihi and sf.fis_tarihi<fiyat.bitis_tarihi
+LEFT OUTER JOIN  buhara.MUH_MB_GUNLUK_DOVIZ_KUR kur ON  kur.DOVIZ_CINSI = fiyat.PARA_BIRIMI AND KUR.TARIH = sf.fis_tarihi
+where sf.yil=2025 and sfh.yil=2025  and TO_DATE(fis_tarihi, 'YYYYMMDD') <> TRUNC(sysdate)  AND  sf.kapali = 1  
+/*where sf.yil=2025 and sfh.yil=2025   AND  sf.kapali = 1 AND sfh.ay=5  AND kurum.id=1642 AND s.stok_kodu=64783   AND  sf.kapali = 1 */
+  and sf.fis_tipi not in ('IPTAL','KONSINYE_CIKIS','KONSINYE_GIRIS','KONSINYE_IADE','DEPO_AKTARIM_FIS', 'FIFA_IPTAL_FIS')
+  and (sf.iptal_eden_fis_id is null )
+  and sf.id not in (select id from buhara.stk_Stok_fis where yil=2019 and kurum_id=1255 and fis_tipi='NOKSANLIK' and iptal_Eden_Fis_id is null) ) stk
+  group by
+  (CASE 
+  WHEN stk.gün < 0 OR (stk.gün >= 0 AND stk.gün < 31) THEN    COALESCE(stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade90, stk.vade120, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 31 AND stk.gün < 61 THEN    COALESCE(stk.vade30, stk.birinci_teklif, stk.vade60, stk.vade90, stk.vade120, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 61 AND stk.gün < 91 THEN    COALESCE(stk.vade60, stk.birinci_teklif, stk.vade30, stk.vade90, stk.vade120, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 91 AND stk.gün < 121 THEN     COALESCE(stk.vade90, stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade120, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 121 AND stk.gün < 151 THEN    COALESCE(stk.vade120, stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade90, stk.vade150, stk.vade180, 0)
+  WHEN stk.gün >= 151 AND stk.gün < 181 THEN    COALESCE(stk.vade150, stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade90, stk.vade120, stk.vade180, 0)
+  WHEN stk.gün > 180 THEN    COALESCE(stk.vade180, stk.birinci_teklif, stk.vade30, stk.vade60, stk.vade90, stk.vade120, stk.vade150, 0)
+  ELSE -1  END  ),
+stk.fis_tarihi,stk.firma,STK.VALOR_TARIHI,STK.FATURA_BIRIM_FIYAT,stk.birinci_teklif,satis_kdv_orani,grup_kodu,
+  stk.teskilat_tipi,teskilat_tipi_id,stk.kurum_id , stok_id, stk.yil ,stk.fis_tipi, stk.birim_cevrim_katsayi, stk.muhatap, ortak_id,
+  stk.tip, muhatap_id, stk.muhatap_tip, stk.muhatap_kurum_tip,stk.stok_hesap_no,stk.odeme_sekli,  stk.fatura_muhatap_tip,stk.fatura_muhatap_kurum,ay,
+      case    when 
+      stk.ana_grup_kodu='110' OR  stk.ana_grup_kodu='150' OR stk.ana_grup_kodu='060' OR  stk.ana_grup_kodu='020' OR   stk.grup_kodu LIKE '120.01%' OR   stk.grup_kodu LIKE '120.05%' OR  stk.grup_kodu LIKE '040.05.01%' OR 
+      stk.grup_kodu LIKE '140.01%' OR      (stk.ozel_grup_kodu = '010' and   stk.grup_kodu  NOT LIKE  '010.10%' ) OR 
+      (stk.ozel_grup_kodu = '040' AND  (stk.grup_kodu LIKE  '040.01%' OR stk.grup_kodu LIKE '040.02%' OR stk.grup_kodu LIKE '040.03%' OR stk.grup_kodu LIKE '040.04%' OR stk.grup_kodu LIKE '040.07%' ) )
+  OR        stk.grup_kodu LIKE '050.11.03.01%' OR    stk.grup_kodu LIKE '050.11.03.02%' OR   stk.grup_kodu LIKE '050.11.03.04%' OR  stk.grup_kodu LIKE '050.11.03.05%'
+    then 1000       else 1   END 
+,stk.rapor_birim_adi,EK_HIZMET_BURO_ID,son_tuketici_satis_mi )
+GROUP BY  kurum_id ,  stok_id,  VALOR_TARIHI,FATURA_BIRIM_FIYAT,tedarik_fiyat, firma, yil,   ay ,   stok_hesap_no,  muhatap_id,  ortak_id,satis_kdv_orani,grup_kodu,son_tuketici_satis_mi,
+fatura_muhatap_tip,fatura_muhatap_kurum ,muhatap_tip,muhatap_kurum_tip,   fis_tipi ,   odeme_sekli,tip,
+tutar_bolen,teskilat_tipi,teskilat_tipi_id, fis_tarihi,rapor_birim_adi,EK_HIZMET_BURO_ID )
+ GROUP BY   kurum_id , birim_cikan_miktar,  stok_id ,VALOR_TARIHI,FATURA_BIRIM_FIYAT ,tedarik_fiyat,firma ,  yil,   ay ,  muhatap_id,ortak_id,muhatap_tip,muhatap_kurum_tip,grup_kodu,son_tuketici_satis_mi,satis_kdv_orani,
+ odeme_sekli, fis_tipi,   stok_hesap_no,tip,teskilat_tipi,teskilat_tipi_id,fis_tarihi,rapor_birim_adi,EK_HIZMET_BURO_ID
+ ", CreateNavigationProperties=false]),
+    #"Renamed Columns" = Table.RenameColumns(Source,{{"KALAN_MIKTAR", "Kalan Miktar"}, {"KALAN_TUTAR", "Kalan_Tutar"}}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"VALOR_TARIHI", type date}, {"KURUM_ID", Int64.Type}, {"STOK_ID", Int64.Type}, {"Kalan Miktar", Currency.Type}, {"Kalan_Tutar", Currency.Type}, {"ORTAK_ID", Int64.Type}, {"FATURA_BIRIM_FIYAT", type number}, {"FIS_TARIHI", type date}, {"FIS_TIPI_ID", Int64.Type}, {"GELIR", Currency.Type}, {"HAREKET_TIP_ID", Int64.Type}, {"MUHATAP_ID", Int64.Type}, {"MUHATAP_KURUM_TIP", type text}, {"MUHATAP_TIP_ID", Int64.Type}, {"ODEME_SEKLI_ID", Int64.Type}, {"STOK_HESAP_NO", Int64.Type}, {"TANZIM_TARIHI", type date}, {"TEDARIK_FIYAT", type number}, {"TEDARIK_MIKTARI", Currency.Type}, {"TEDARIK_TUTARI", Currency.Type}, {"TESDISI_SATIS_MIKTARI", Currency.Type}, {"TESDISI_SATIS_TUTARI", Currency.Type}, {"TESICI_SATIS_MIKTARI", Currency.Type}, {"TESICI_SATIS_TUTARI", Currency.Type}, {"TESKILAT_TIPI_ID", Int64.Type}, {"YILBASI_DEVIR_MIKTARI", Currency.Type}, {"YILBASI_DEVIR_TUTARI", Currency.Type}})
+in
+    #"Changed Type"
